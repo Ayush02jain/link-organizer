@@ -68,3 +68,5 @@ This web app is step one. Step two is a small Manifest V3 Chrome extension that:
   URL + anon key, plus you staying signed in via the extension's own auth flow)
 
 Say the word when you're ready and we'll scaffold that next, wired to this same backend.
+
+## Coming Soon!!
