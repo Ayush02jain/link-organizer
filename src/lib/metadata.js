@@ -65,95 +65,118 @@ export async function fetchTwitterMetadata(url) {
   }
 }
 
-// ── Direct meta-description scraper ─────────────────────────────────────────
+// ── Direct HTML meta scraper ─────────────────────────────────────────────────
 
 /**
- * Fetches raw HTML via the allorigins CORS proxy and parses the page's
- * <meta name="description"> or <meta property="og:description"> tag.
- * Returns the content string, or null if none found / request fails.
+ * Fetches raw page HTML via two CORS proxies (corsproxy.io first, then
+ * allorigins.win as fallback) and parses:
+ *   - <title> for the page title
+ *   - <meta name="description"> or <meta property="og:description"> for description
+ *
+ * Returns { title, description } — either field may be null.
  */
-export async function fetchMetaDescription(url) {
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
-  const res = await fetch(proxyUrl)
-  if (!res.ok) throw new Error('allorigins fetch failed')
-  const { contents } = await res.json()
-  if (!contents) return null
+export async function fetchPageMeta(url) {
+  let html = null
 
-  const doc = new DOMParser().parseFromString(contents, 'text/html')
+  // 1️⃣  corsproxy.io — returns raw HTML directly, very reliable
+  try {
+    const res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, {
+      signal: AbortSignal.timeout(8000),
+    })
+    if (res.ok) html = await res.text()
+  } catch {
+    // network error or timeout — try next proxy
+  }
 
-  // Check <meta name="description"> first, then og:description as fallback.
-  const desc =
-    doc.querySelector('meta[name="description"]')?.getAttribute('content') ||
-    doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+  // 2️⃣  allorigins.win — wraps HTML in { contents: "..." } JSON
+  if (!html) {
+    try {
+      const res = await fetch(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        { signal: AbortSignal.timeout(8000) }
+      )
+      if (res.ok) {
+        const { contents } = await res.json()
+        html = contents || null
+      }
+    } catch {
+      // both proxies failed
+    }
+  }
+
+  if (!html) return { title: null, description: null }
+
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+
+  const title = doc.querySelector('title')?.textContent?.trim() || null
+
+  const description =
+    doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() ||
+    doc.querySelector('meta[property="og:description"]')?.getAttribute('content')?.trim() ||
     null
 
-  return desc?.trim() || null
+  return { title, description }
 }
 
 // ── Generic metadata fetcher ─────────────────────────────────────────────────
 
 /**
- * Fetches title + preview image for a pasted link.
- * - Direct image URLs are returned immediately.
- * - Twitter/X URLs use the free oEmbed endpoint.
- * - Everything else uses the microlink.io metadata API for title + image,
- *   then falls back to direct HTML parsing for description if microlink
- *   didn't return one (via fetchMetaDescription / allorigins proxy).
- * Falls back gracefully if any request fails.
+ * Fetches title + image + description for a pasted link.
+ *
+ * Strategy:
+ *  - Direct image URLs → returned immediately, no fetch needed.
+ *  - Twitter/X URLs    → oEmbed endpoint (tweet text as description).
+ *  - Everything else  → microlink (image) + fetchPageMeta (title, description)
+ *    run in PARALLEL via Promise.allSettled so neither blocks the other.
+ *    fetchPageMeta reads <meta name="description"> directly from the page HTML,
+ *    which is the most reliable source. microlink title is preferred when it
+ *    succeeds (often cleaner); fetchPageMeta title is the fallback.
+ *
+ * Falls back gracefully at every step — never throws.
  */
 export async function fetchLinkMetadata(url) {
   if (isImageUrl(url)) {
-    return {
-      title: getDomain(url),
-      image: url,
-      isImage: true,
-      description: null,
-    }
+    return { title: getDomain(url), image: url, isImage: true, description: null }
   }
 
-  // Twitter / X — use oEmbed, don't send to microlink (it won't work there).
+  // Twitter / X — oEmbed only, microlink won't work there.
   if (isTwitterUrl(url)) {
     try {
       return await fetchTwitterMetadata(url)
     } catch {
-      // oEmbed failed — fall through to the empty-metadata default below.
+      /* fall through */
     }
-    return {
-      title: getDomain(url),
-      image: null,
-      isImage: false,
-      description: null,
-    }
+    return { title: getDomain(url), image: null, isImage: false, description: null }
   }
 
-  // Generic URL — ask microlink for title + image, then scrape description
-  // directly from the page HTML if microlink didn't return one.
-  let title = getDomain(url)
-  let image = null
-  let description = null
+  // Generic URL — fire microlink and direct HTML scrape in parallel.
+  const [mlSettled, pmSettled] = await Promise.allSettled([
+    // microlink: good at images and structured title
+    fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}&meta=false`)
+      .then((r) => r.json())
+      .then((json) =>
+        json.status === 'success'
+          ? {
+              title: json.data.title || null,
+              image: json.data.image?.url || json.data.logo?.url || null,
+              description: json.data.description || null,
+            }
+          : {}
+      ),
+    // fetchPageMeta: reads <meta name="description"> directly from HTML
+    fetchPageMeta(url),
+  ])
 
-  try {
-    const res = await fetch(
-      `https://api.microlink.io/?url=${encodeURIComponent(url)}&meta=false`
-    )
-    const json = await res.json()
-    if (json.status === 'success') {
-      title = json.data.title || title
-      image = json.data.image?.url || json.data.logo?.url || null
-      description = json.data.description || null
-    }
-  } catch {
-    // microlink failure — keep defaults, still try meta scrape below
+  const ml = mlSettled.status === 'fulfilled' ? mlSettled.value : {}
+  const pm = pmSettled.status === 'fulfilled' ? pmSettled.value : {}
+
+  return {
+    // microlink title is usually cleaner; HTML <title> is the fallback
+    title: ml.title || pm.title || getDomain(url),
+    // only microlink reliably returns preview images
+    image: ml.image || null,
+    isImage: false,
+    // prefer direct HTML parse (most reliable); microlink as secondary
+    description: pm.description || ml.description || null,
   }
-
-  // If description still missing, try parsing <meta name="description"> directly.
-  if (!description) {
-    try {
-      description = await fetchMetaDescription(url)
-    } catch {
-      // CORS proxy failure — leave description as null
-    }
-  }
-
-  return { title, image, isImage: false, description }
 }
