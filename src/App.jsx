@@ -57,7 +57,7 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto flex h-screen max-w-6xl flex-col overflow-hidden px-4 sm:px-6">
       <header className="flex items-center justify-between py-8">
         <h1 className="font-display text-2xl text-[var(--color-ink)]">Catch</h1>
         <button
@@ -87,7 +87,7 @@ export default function App() {
         </div>
       </div>
 
-      <main className="mt-6">
+      <main className="mt-6 flex-1 overflow-y-auto pb-6">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin text-[var(--color-ink-faint)]" />
