@@ -65,13 +65,40 @@ export async function fetchTwitterMetadata(url) {
   }
 }
 
+// ── Direct meta-description scraper ─────────────────────────────────────────
+
+/**
+ * Fetches raw HTML via the allorigins CORS proxy and parses the page's
+ * <meta name="description"> or <meta property="og:description"> tag.
+ * Returns the content string, or null if none found / request fails.
+ */
+export async function fetchMetaDescription(url) {
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+  const res = await fetch(proxyUrl)
+  if (!res.ok) throw new Error('allorigins fetch failed')
+  const { contents } = await res.json()
+  if (!contents) return null
+
+  const doc = new DOMParser().parseFromString(contents, 'text/html')
+
+  // Check <meta name="description"> first, then og:description as fallback.
+  const desc =
+    doc.querySelector('meta[name="description"]')?.getAttribute('content') ||
+    doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+    null
+
+  return desc?.trim() || null
+}
+
 // ── Generic metadata fetcher ─────────────────────────────────────────────────
 
 /**
  * Fetches title + preview image for a pasted link.
  * - Direct image URLs are returned immediately.
  * - Twitter/X URLs use the free oEmbed endpoint.
- * - Everything else uses the free microlink.io metadata API.
+ * - Everything else uses the microlink.io metadata API for title + image,
+ *   then falls back to direct HTML parsing for description if microlink
+ *   didn't return one (via fetchMetaDescription / allorigins proxy).
  * Falls back gracefully if any request fails.
  */
 export async function fetchLinkMetadata(url) {
@@ -99,27 +126,34 @@ export async function fetchLinkMetadata(url) {
     }
   }
 
+  // Generic URL — ask microlink for title + image, then scrape description
+  // directly from the page HTML if microlink didn't return one.
+  let title = getDomain(url)
+  let image = null
+  let description = null
+
   try {
     const res = await fetch(
       `https://api.microlink.io/?url=${encodeURIComponent(url)}&meta=false`
     )
     const json = await res.json()
     if (json.status === 'success') {
-      return {
-        title: json.data.title || getDomain(url),
-        image: json.data.image?.url || json.data.logo?.url || null,
-        isImage: false,
-        description: json.data.description || null,
-      }
+      title = json.data.title || title
+      image = json.data.image?.url || json.data.logo?.url || null
+      description = json.data.description || null
     }
   } catch {
-    // network/API failure — fall through to defaults
+    // microlink failure — keep defaults, still try meta scrape below
   }
 
-  return {
-    title: getDomain(url),
-    image: null,
-    isImage: false,
-    description: null,
+  // If description still missing, try parsing <meta name="description"> directly.
+  if (!description) {
+    try {
+      description = await fetchMetaDescription(url)
+    } catch {
+      // CORS proxy failure — leave description as null
+    }
   }
+
+  return { title, image, isImage: false, description }
 }
