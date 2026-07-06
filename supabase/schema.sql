@@ -6,6 +6,7 @@ create table if not exists links (
   user_id uuid references auth.users(id) not null,
   url text not null,
   title text,
+  description text,
   image_url text,
   domain text,
   tags text[] default '{}',

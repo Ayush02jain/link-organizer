@@ -43,6 +43,7 @@ export function useLinks(userId) {
           user_id: userId,
           url,
           title: meta.title,
+          description: meta.description,
           image_url: meta.image,
           domain: getDomain(url),
           is_image: meta.isImage,

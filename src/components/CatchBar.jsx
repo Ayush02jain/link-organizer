@@ -37,7 +37,7 @@ export default function CatchBar({ onAdd }) {
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste a link to catch it\u2026"
+        placeholder="Paste a link to catch it…"
         className="w-full flex-1 rounded-xl border-none bg-transparent px-3 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
       />
       <div className="mt-2 flex items-center gap-2 sm:mt-0">

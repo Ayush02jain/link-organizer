@@ -42,6 +42,7 @@ export async function fetchLinkMetadata(url) {
       title: getDomain(url),
       image: url,
       isImage: true,
+      description: null,
     }
   }
 
@@ -55,6 +56,7 @@ export async function fetchLinkMetadata(url) {
         title: json.data.title || getDomain(url),
         image: json.data.image?.url || json.data.logo?.url || null,
         isImage: false,
+        description: json.data.description || null,
       }
     }
   } catch {
@@ -65,5 +67,6 @@ export async function fetchLinkMetadata(url) {
     title: getDomain(url),
     image: null,
     isImage: false,
+    description: null,
   }
 }
