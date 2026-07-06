@@ -102,7 +102,7 @@ export default function App() {
           <LinkGrid
             links={filteredLinks}
             onDelete={deleteLink}
-            onUpdateTags={(id, tags) => updateLink(id, { tags })}
+            onUpdate={updateLink}
           />
         )}
       </main>
