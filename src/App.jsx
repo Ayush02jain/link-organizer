@@ -60,13 +60,18 @@ export default function App() {
     <div className="mx-auto flex h-screen max-w-6xl flex-col overflow-hidden px-4 sm:px-6">
       <header className="flex items-center justify-between py-8">
         <h1 className="font-display text-2xl text-[var(--color-ink)]">Catch</h1>
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="flex items-center gap-1.5 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
-        >
-          <LogOut size={13} />
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="hidden sm:inline text-xs text-[var(--color-ink-faint)]">
+            {session.user.email}
+          </span>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="flex items-center gap-1.5 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
+          >
+            <LogOut size={13} />
+            Sign out
+          </button>
+        </div>
       </header>
 
       <CatchBar onAdd={addLink} />
