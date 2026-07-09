@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ExternalLink, Trash2, Pencil, Check, X } from 'lucide-react'
+import { ExternalLink, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react'
+import { fetchLinkMetadata, getDomain, normalizeUrl, isValidUrl } from '../lib/metadata'
 
 export default function LinkCard({ link, onDelete, onUpdate }) {
   // ── tag editing ──────────────────────────────────────────────────────────
@@ -15,26 +16,60 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
     setEditingTags(false)
   }
 
-  // ── title + description editing ──────────────────────────────────────────
+  // ── title + description + url editing ───────────────────────────────────
   const [editingMeta, setEditingMeta] = useState(false)
-  const [titleDraft, setTitleDraft] = useState(link.title || '')
-  const [descDraft, setDescDraft] = useState(link.description || '')
+  const [urlDraft, setUrlDraft]       = useState(link.url)
+  const [titleDraft, setTitleDraft]   = useState(link.title || '')
+  const [descDraft, setDescDraft]     = useState(link.description || '')
+  const [metaSaving, setMetaSaving]   = useState(false)
+  const [metaError, setMetaError]     = useState('')
 
   function openMetaEdit() {
+    setUrlDraft(link.url)
     setTitleDraft(link.title || '')
     setDescDraft(link.description || '')
+    setMetaError('')
     setEditingMeta(true)
   }
 
-  function saveMeta() {
-    onUpdate(link.id, {
-      title: titleDraft.trim() || link.url,
-      description: descDraft.trim() || null,
-    })
-    setEditingMeta(false)
+  async function saveMeta() {
+    const newUrl = normalizeUrl(urlDraft)
+    if (!isValidUrl(newUrl)) {
+      setMetaError("That doesn't look like a valid link.")
+      return
+    }
+    setMetaError('')
+    setMetaSaving(true)
+    try {
+      if (newUrl !== link.url) {
+        // URL changed — fetch fresh metadata for the new destination
+        const meta = await fetchLinkMetadata(newUrl)
+        onUpdate(link.id, {
+          url:         newUrl,
+          domain:      getDomain(newUrl),
+          title:       titleDraft.trim() || meta.title,
+          description: descDraft.trim()  || meta.description,
+          image_url:   meta.image,
+          is_image:    meta.isImage,
+        })
+      } else {
+        // URL unchanged — just persist title/description edits
+        onUpdate(link.id, {
+          title:       titleDraft.trim() || link.url,
+          description: descDraft.trim()  || null,
+        })
+      }
+      setEditingMeta(false)
+    } catch (err) {
+      setMetaError('Something went wrong — please try again.')
+    } finally {
+      setMetaSaving(false)
+    }
   }
 
   function cancelMeta() {
+    setUrlDraft(link.url)
+    setMetaError('')
     setEditingMeta(false)
   }
 
@@ -80,14 +115,29 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
         {/* ── Meta edit mode ── */}
         {editingMeta ? (
           <div className="flex flex-col gap-1.5">
-            <input
-              autoFocus
-              value={titleDraft}
-              onChange={(e) => setTitleDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
-              placeholder="Title"
-              className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] focus:outline-none"
-            />
+            {/* URL field */}
+            <label className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-ink-faint)]">Link</span>
+              <input
+                autoFocus
+                value={urlDraft}
+                onChange={(e) => { setUrlDraft(e.target.value); setMetaError('') }}
+                onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
+                placeholder="https://"
+                className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 font-mono text-xs text-[var(--color-ink)] focus:outline-none"
+              />
+            </label>
+            {/* Title field */}
+            <label className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-ink-faint)]">Title</span>
+              <input
+                value={titleDraft}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
+                placeholder="Title"
+                className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] focus:outline-none"
+              />
+            </label>
             <textarea
               value={descDraft}
               onChange={(e) => setDescDraft(e.target.value)}
@@ -96,16 +146,24 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               rows={2}
               className="w-full resize-none rounded-lg border border-[var(--color-border)] px-2 py-1 text-xs leading-relaxed text-[var(--color-ink-soft)] focus:outline-none"
             />
+            {/* Inline error */}
+            {metaError && (
+              <p className="text-xs text-[var(--color-danger)]">{metaError}</p>
+            )}
             <div className="flex items-center gap-2">
               <button
                 onClick={saveMeta}
-                className="flex items-center gap-1 rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[var(--color-accent-ink)]"
+                disabled={metaSaving}
+                className="flex items-center gap-1 rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[var(--color-accent-ink)] disabled:opacity-60"
               >
-                <Check size={12} /> Save
+                {metaSaving
+                  ? <><Loader2 size={12} className="animate-spin" /> Saving…</>
+                  : <><Check size={12} /> Save</>}
               </button>
               <button
                 onClick={cancelMeta}
-                className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
+                disabled={metaSaving}
+                className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)] disabled:opacity-50"
               >
                 Cancel
               </button>
