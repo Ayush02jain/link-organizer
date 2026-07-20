@@ -64,19 +64,28 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
+        {/* ── Logo ── */}
         <div className="mb-10 text-center">
-          <h1 className="font-display text-3xl text-[var(--color-ink)]">Catch</h1>
-          <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
+          <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--color-ink)]">
+            <span
+              className="mr-2 inline-block h-8 w-8 rounded-md border-3 border-[var(--color-ink)]"
+              style={{ background: 'var(--color-accent)', boxShadow: '3px 3px 0 var(--color-ink)', verticalAlign: 'middle' }}
+            />
+            Catch
+          </h1>
+          <p className="mt-3 font-display text-sm font-medium text-[var(--color-ink-soft)]">
             Your links, saved somewhere on purpose.
           </p>
         </div>
 
         {status === 'email-confirm' ? (
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center">
-            <p className="text-sm text-[var(--color-ink)]">
-              Check <span className="font-medium">{email}</span> to confirm your account.
+          <div
+            className="neu-card p-6 text-center"
+          >
+            <p className="font-display text-sm font-semibold text-[var(--color-ink)]">
+              Check <span className="font-bold">{email}</span> to confirm your account.
             </p>
-            <p className="mt-3 text-xs text-[var(--color-ink-faint)]">
+            <p className="mt-3 text-xs font-medium text-[var(--color-ink-faint)]">
               After confirming, come back and sign in with your password.
             </p>
             <button
@@ -85,7 +94,7 @@ export default function Auth() {
                 setEmail('')
                 setPassword('')
               }}
-              className="mt-4 text-sm text-[var(--color-accent)] hover:underline"
+              className="mt-4 font-display text-sm font-bold text-[var(--color-accent)] hover:underline"
             >
               Back to sign in
             </button>
@@ -101,7 +110,7 @@ export default function Auth() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)] focus:outline-none"
+              className="neu-input w-full"
             />
 
             <div className="relative">
@@ -112,12 +121,12 @@ export default function Auth() {
                 placeholder="Password (min 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 pr-10 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)] focus:outline-none"
+                className="neu-input w-full pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-ink)] hover:text-[var(--color-accent)]"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -126,7 +135,7 @@ export default function Auth() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full rounded-xl bg-[var(--color-accent)] px-4 py-3 text-sm font-medium text-white hover:bg-[var(--color-accent-ink)] disabled:opacity-60"
+              className="neu-btn neu-btn-primary w-full py-3 text-sm"
             >
               {status === 'loading'
                 ? mode === 'signup'
@@ -138,7 +147,10 @@ export default function Auth() {
             </button>
 
             {status === 'error' && (
-              <p className="rounded-lg bg-[var(--color-danger-soft)] px-3 py-2 text-xs text-[var(--color-danger)]">
+              <p
+                className="rounded-lg border-2 border-[var(--color-danger)] bg-[var(--color-danger-soft)] px-3 py-2 text-xs font-bold text-[var(--color-danger)]"
+                style={{ boxShadow: '2px 2px 0 var(--color-danger)' }}
+              >
                 {errorMsg}
               </p>
             )}
@@ -151,7 +163,7 @@ export default function Auth() {
                   setErrorMsg('')
                   setStatus('idle')
                 }}
-                className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                className="font-display text-xs font-bold text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
               >
                 {mode === 'signin'
                   ? "New here? Create an account"
@@ -161,7 +173,7 @@ export default function Auth() {
           </form>
         )}
 
-        <p className="mt-8 text-center text-xs text-[var(--color-ink-faint)]">
+        <p className="mt-8 text-center text-xs font-medium text-[var(--color-ink-faint)]">
           {mode === 'signin'
             ? 'Sign in with your email and password.'
             : 'Create an account with your email and a password.'}

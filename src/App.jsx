@@ -47,7 +47,7 @@ export default function App() {
   if (session === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-ink-faint)]" />
+        <Loader2 size={28} className="animate-spin text-[var(--color-ink)]" />
       </div>
     )
   }
@@ -57,16 +57,27 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex h-screen max-w-6xl flex-col overflow-hidden px-4 sm:px-6">
+    <div className="mx-auto flex h-screen max-w-5xl flex-col overflow-hidden px-4 sm:px-6">
+      {/* ── Header ── */}
       <header className="flex items-center justify-between py-8">
-        <h1 className="font-display text-2xl text-[var(--color-ink)]">Catch</h1>
+        <h1
+          className="font-display text-3xl font-bold tracking-tight text-[var(--color-ink)]"
+          style={{ letterSpacing: '-0.02em' }}
+        >
+          <span
+            className="mr-2 inline-block h-7 w-7 rounded-md border-2 border-[var(--color-ink)]"
+            style={{ background: 'var(--color-accent)', boxShadow: '2px 2px 0 var(--color-ink)' }}
+          />
+          Catch
+        </h1>
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline text-xs text-[var(--color-ink-faint)]">
+          <span className="hidden sm:inline font-mono text-xs font-medium text-[var(--color-ink-soft)]">
             {session.user.email}
           </span>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-1.5 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
+            className="neu-btn-ghost flex items-center gap-1.5 rounded-lg border-2 border-[var(--color-border)] px-3 py-1.5 text-xs font-bold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+            style={{ boxShadow: '2px 2px 0 var(--color-ink)' }}
           >
             <LogOut size={13} />
             Sign out
@@ -74,31 +85,37 @@ export default function App() {
         </div>
       </header>
 
+      {/* ── Catch Bar ── */}
       <CatchBar onAdd={addLink} />
 
+      {/* ── Filters + Search ── */}
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <TagFilter tags={allTags} activeTag={activeTag} onSelect={setActiveTag} />
         <div className="relative w-full sm:w-64">
           <Search
-            size={15}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink-faint)]"
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink)]"
           />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search your links"
-            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] py-2 pl-9 pr-3 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)] focus:outline-none"
+            className="w-full rounded-lg border border-[var(--color-ink)]/30 bg-[var(--color-surface)] py-2.5 pl-9 pr-3 text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-ink)] focus:outline-none"
           />
         </div>
       </div>
 
+      {/* ── Main content ── */}
       <main className="mt-6 flex-1 overflow-y-auto pb-6">
         {loading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-[var(--color-ink-faint)]" />
+            <Loader2 size={28} className="animate-spin text-[var(--color-ink)]" />
           </div>
         ) : error ? (
-          <p className="rounded-xl bg-[var(--color-danger-soft)] px-4 py-3 text-sm text-[var(--color-danger)]">
+          <p
+            className="rounded-lg border-2 border-[var(--color-danger)] bg-[var(--color-danger-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-danger)]"
+            style={{ boxShadow: '3px 3px 0 var(--color-danger)' }}
+          >
             {error}
           </p>
         ) : filteredLinks.length === 0 ? (

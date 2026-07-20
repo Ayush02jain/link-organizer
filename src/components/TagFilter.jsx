@@ -5,10 +5,10 @@ export default function TagFilter({ tags, activeTag, onSelect }) {
     <div className="flex flex-wrap items-center gap-2">
       <button
         onClick={() => onSelect(null)}
-        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+        className={`neu-tag cursor-pointer ${
           activeTag === null
-            ? 'bg-[var(--color-ink)] text-white'
-            : 'bg-[var(--color-surface)] text-[var(--color-ink-soft)] border border-[var(--color-border)] hover:border-[var(--color-accent)]'
+            ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
+            : 'hover:bg-[var(--color-paper)]'
         }`}
       >
         All
@@ -17,10 +17,10 @@ export default function TagFilter({ tags, activeTag, onSelect }) {
         <button
           key={tag}
           onClick={() => onSelect(tag)}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+          className={`neu-tag cursor-pointer ${
             activeTag === tag
-              ? 'bg-[var(--color-accent)] text-white'
-              : 'bg-[var(--color-surface)] text-[var(--color-ink-soft)] border border-[var(--color-border)] hover:border-[var(--color-accent)]'
+              ? 'neu-tag-active'
+              : 'hover:bg-[var(--color-paper)]'
           }`}
         >
           {tag}

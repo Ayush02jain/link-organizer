@@ -2,6 +2,24 @@ import { useState } from 'react'
 import { ExternalLink, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react'
 import { fetchLinkMetadata, getDomain, normalizeUrl, isValidUrl } from '../lib/metadata'
 
+/* Rotating avatar colors for fallback thumbnails */
+const AVATAR_COLORS = [
+  'var(--avatar-coral)',
+  'var(--avatar-blue)',
+  'var(--avatar-yellow)',
+  'var(--avatar-lavender)',
+  'var(--avatar-mint)',
+  'var(--avatar-pink)',
+]
+
+function avatarColor(domain) {
+  let hash = 0
+  for (let i = 0; i < (domain || '').length; i++) {
+    hash = domain.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
 export default function LinkCard({ link, onDelete, onUpdate }) {
   // ── tag editing ──────────────────────────────────────────────────────────
   const [editingTags, setEditingTags] = useState(false)
@@ -76,14 +94,17 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
   // ── delete confirm ───────────────────────────────────────────────────────
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
+  const bgColor = avatarColor(link.domain)
+
   return (
-    <div className="group flex flex-row items-stretch gap-4 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 transition hover:border-[var(--color-accent)]/40 hover:shadow-md">
+    <div className="neu-card group flex flex-row items-stretch gap-4 p-3">
       {/* ── Left: thumbnail ── */}
       <a
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-[var(--color-accent-soft)] sm:h-28 sm:w-28"
+        className="block h-28 w-28 shrink-0 overflow-hidden rounded-lg border-2 border-[var(--color-border)] sm:h-[136px] sm:w-[136px]"
+        style={{ background: bgColor }}
       >
         {link.image_url ? (
           <img
@@ -103,7 +124,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
         <div
           className={`flex h-full items-center justify-center ${link.image_url ? 'hidden' : ''}`}
         >
-          <span className="font-display text-2xl text-[var(--color-accent-ink)] opacity-40">
+          <span className="font-display text-3xl font-bold text-white" style={{ textShadow: '2px 2px 0 rgba(0,0,0,0.2)' }}>
             {link.domain?.[0]?.toUpperCase() || '?'}
           </span>
         </div>
@@ -117,25 +138,25 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
           <div className="flex flex-col gap-1.5">
             {/* URL field */}
             <label className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-ink-faint)]">Link</span>
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-[var(--color-ink-soft)]">Link</span>
               <input
                 autoFocus
                 value={urlDraft}
                 onChange={(e) => { setUrlDraft(e.target.value); setMetaError('') }}
                 onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
                 placeholder="https://"
-                className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 font-mono text-xs text-[var(--color-ink)] focus:outline-none"
+                className="neu-input w-full font-mono text-xs"
               />
             </label>
             {/* Title field */}
             <label className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-ink-faint)]">Title</span>
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-[var(--color-ink-soft)]">Title</span>
               <input
                 value={titleDraft}
                 onChange={(e) => setTitleDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
                 placeholder="Title"
-                className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] focus:outline-none"
+                className="neu-input w-full font-display font-bold text-sm"
               />
             </label>
             <textarea
@@ -144,17 +165,17 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               onKeyDown={(e) => e.key === 'Escape' && cancelMeta()}
               placeholder="Description (optional)"
               rows={2}
-              className="w-full resize-none rounded-lg border border-[var(--color-border)] px-2 py-1 text-xs leading-relaxed text-[var(--color-ink-soft)] focus:outline-none"
+              className="neu-input w-full resize-none text-xs leading-relaxed"
             />
             {/* Inline error */}
             {metaError && (
-              <p className="text-xs text-[var(--color-danger)]">{metaError}</p>
+              <p className="text-xs font-bold text-[var(--color-danger)]">{metaError}</p>
             )}
             <div className="flex items-center gap-2">
               <button
                 onClick={saveMeta}
                 disabled={metaSaving}
-                className="flex items-center gap-1 rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-xs font-medium text-white transition hover:bg-[var(--color-accent-ink)] disabled:opacity-60"
+                className="neu-btn neu-btn-primary px-3 py-1.5 text-xs"
               >
                 {metaSaving
                   ? <><Loader2 size={12} className="animate-spin" /> Saving…</>
@@ -163,7 +184,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               <button
                 onClick={cancelMeta}
                 disabled={metaSaving}
-                className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink)] disabled:opacity-50"
+                className="text-xs font-bold text-[var(--color-ink-faint)] hover:text-[var(--color-ink)] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -177,7 +198,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-accent-ink)]"
+                className="min-w-0 flex-1 truncate font-display text-sm font-bold text-[var(--color-ink)] hover:text-[var(--color-accent)]"
               >
                 {link.title || link.url}
               </a>
@@ -185,7 +206,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               {/* Pencil to edit title/description — hover-reveal */}
               <button
                 onClick={openMetaEdit}
-                className="shrink-0 rounded-lg p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)] group-hover:opacity-100"
+                className="shrink-0 rounded-md border-2 border-transparent p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:border-[var(--color-border)] hover:bg-[var(--color-paper)] hover:text-[var(--color-accent)] group-hover:opacity-100"
                 aria-label="Edit title and description"
               >
                 <Pencil size={13} />
@@ -194,16 +215,16 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               {/* Delete */}
               {confirmingDelete ? (
                 <div className="flex shrink-0 items-center gap-2 text-xs">
-                  <span className="text-[var(--color-ink-soft)]">Remove?</span>
+                  <span className="font-bold text-[var(--color-ink-soft)]">Remove?</span>
                   <button
                     onClick={() => onDelete(link.id)}
-                    className="font-medium text-[var(--color-danger)]"
+                    className="font-bold text-[var(--color-danger)]"
                   >
                     Yes
                   </button>
                   <button
                     onClick={() => setConfirmingDelete(false)}
-                    className="text-[var(--color-ink-faint)]"
+                    className="font-bold text-[var(--color-ink-faint)]"
                   >
                     Cancel
                   </button>
@@ -211,7 +232,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               ) : (
                 <button
                   onClick={() => setConfirmingDelete(true)}
-                  className="shrink-0 rounded-lg p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)] group-hover:opacity-100"
+                  className="shrink-0 rounded-md border-2 border-transparent p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:border-[var(--color-danger)] hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)] group-hover:opacity-100"
                   aria-label="Delete link"
                 >
                   <Trash2 size={14} />
@@ -220,7 +241,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
             </div>
 
             {/* Row 2: domain */}
-            <div className="flex items-center gap-1 font-mono text-xs text-[var(--color-ink-faint)]">
+            <div className="flex items-center gap-1 font-mono text-xs font-medium text-[var(--color-ink-faint)]">
               <span className="truncate">{link.domain}</span>
               <ExternalLink size={11} className="shrink-0" />
             </div>
@@ -233,7 +254,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
             ) : (
               <button
                 onClick={openMetaEdit}
-                className="self-start text-xs text-[var(--color-ink-faint)] opacity-0 transition hover:text-[var(--color-accent)] group-hover:opacity-100"
+                className="self-start text-xs font-bold text-[var(--color-ink-faint)] opacity-0 transition hover:text-[var(--color-accent)] group-hover:opacity-100"
               >
                 + Add a description
               </button>
@@ -251,7 +272,7 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
                 onChange={(e) => setTagDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && saveTags()}
                 placeholder="tags, comma, separated"
-                className="w-full rounded-lg border border-[var(--color-border)] px-2 py-1 text-xs text-[var(--color-ink)] focus:outline-none"
+                className="neu-input w-full py-1 px-2 text-xs"
               />
               <button onClick={saveTags} className="text-[var(--color-accent)]">
                 <Check size={15} />
@@ -265,14 +286,14 @@ export default function LinkCard({ link, onDelete, onUpdate }) {
               {link.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-xs text-[var(--color-accent-ink)]"
+                  className="neu-tag neu-tag-accent text-[11px]"
                 >
                   {tag}
                 </span>
               ))}
               <button
                 onClick={() => setEditingTags(true)}
-                className="rounded-full p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:text-[var(--color-accent)] group-hover:opacity-100"
+                className="rounded-md border-2 border-transparent p-1 text-[var(--color-ink-faint)] opacity-0 transition hover:border-[var(--color-border)] hover:text-[var(--color-accent)] group-hover:opacity-100"
                 aria-label="Edit tags"
               >
                 <Pencil size={12} />

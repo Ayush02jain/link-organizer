@@ -31,36 +31,36 @@ export default function CatchBar({ onAdd }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-sm sm:flex sm:items-center sm:gap-2 sm:p-2"
+      className="neu-card p-3 sm:flex sm:items-center sm:gap-2 sm:p-3"
     >
       <input
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="Paste a link to catch it…"
-        className="w-full flex-1 rounded-xl border-none bg-transparent px-3 py-2.5 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+        className="w-full flex-1 border-none bg-transparent px-3 py-2.5 font-display text-sm font-semibold text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
       />
       <div className="mt-2 flex items-center gap-2 sm:mt-0">
-        <div className="flex flex-1 items-center gap-1.5 rounded-xl border border-[var(--color-border)] px-3 py-2 sm:border-none sm:px-2 sm:py-0">
-          <TagIcon size={14} className="shrink-0 text-[var(--color-ink-faint)]" />
+        <div className="flex flex-1 items-center gap-1.5 rounded-lg border-2 border-[var(--color-border)] px-3 py-2 sm:px-2 sm:py-1.5">
+          <TagIcon size={14} className="shrink-0 text-[var(--color-ink)]" />
           <input
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder="tags, comma, separated"
-            className="w-full min-w-0 border-none bg-transparent text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+            className="w-full min-w-0 border-none bg-transparent text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
           />
         </div>
         <button
           type="submit"
           disabled={saving || !url.trim()}
-          className="shrink-0 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-accent-ink)] disabled:opacity-50"
+          className="neu-btn neu-btn-primary shrink-0 px-5 py-2.5 text-sm"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
         </button>
       </div>
       {error && (
-        <p className="mt-2 basis-full text-xs text-[var(--color-danger)] sm:ml-3">{error}</p>
+        <p className="mt-2 basis-full text-xs font-semibold text-[var(--color-danger)] sm:ml-3">{error}</p>
       )}
     </form>
   )
