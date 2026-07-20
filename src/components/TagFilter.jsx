@@ -5,11 +5,15 @@ export default function TagFilter({ tags, activeTag, onSelect }) {
     <div className="flex flex-wrap items-center gap-2">
       <button
         onClick={() => onSelect(null)}
-        className={`neu-tag cursor-pointer ${
-          activeTag === null
-            ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
-            : 'hover:bg-[var(--color-paper)]'
-        }`}
+        className="font-display text-xs font-bold"
+        style={{
+          border: '2px solid var(--color-ink)',
+          borderRadius: '999px',
+          padding: '5px 16px',
+          background: activeTag === null ? 'var(--color-ink)' : 'var(--color-surface)',
+          color: activeTag === null ? '#fff' : 'var(--color-ink)',
+          transition: 'all 0.1s',
+        }}
       >
         All
       </button>
@@ -17,11 +21,15 @@ export default function TagFilter({ tags, activeTag, onSelect }) {
         <button
           key={tag}
           onClick={() => onSelect(tag)}
-          className={`neu-tag cursor-pointer ${
-            activeTag === tag
-              ? 'neu-tag-active'
-              : 'hover:bg-[var(--color-paper)]'
-          }`}
+          className="font-display text-xs font-bold"
+          style={{
+            border: '2px solid var(--color-ink)',
+            borderRadius: '999px',
+            padding: '5px 16px',
+            background: activeTag === tag ? 'var(--tag-yellow)' : 'var(--color-surface)',
+            color: 'var(--color-ink)',
+            transition: 'all 0.1s',
+          }}
         >
           {tag}
         </button>

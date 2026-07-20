@@ -57,27 +57,38 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex h-screen max-w-5xl flex-col overflow-hidden px-4 sm:px-6">
+    <div
+      className="mx-auto flex h-screen flex-col overflow-hidden px-6"
+      style={{ maxWidth: '1100px' }}
+    >
       {/* ── Header ── */}
-      <header className="flex items-center justify-between py-8">
-        <h1
-          className="font-display text-3xl font-bold tracking-tight text-[var(--color-ink)]"
-          style={{ letterSpacing: '-0.02em' }}
-        >
-          <span
-            className="mr-2 inline-block h-7 w-7 rounded-md border-2 border-[var(--color-ink)]"
-            style={{ background: 'var(--color-accent)', boxShadow: '2px 2px 0 var(--color-ink)' }}
+      <header className="flex items-center justify-between pb-6 pt-10">
+        <h1 className="font-display flex items-center gap-3 text-3xl font-bold text-[var(--color-ink)]">
+          <img
+            src="/favicon.svg"
+            alt="Catch logo"
+            className="h-10 w-10"
+            style={{
+              borderRadius: '8px',
+              border: '3px solid var(--color-ink)',
+              boxShadow: '2px 2px 0 var(--color-ink)',
+            }}
           />
           Catch
         </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <span className="hidden sm:inline font-mono text-xs font-medium text-[var(--color-ink-soft)]">
             {session.user.email}
           </span>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="neu-btn-ghost flex items-center gap-1.5 rounded-lg border-2 border-[var(--color-border)] px-3 py-1.5 text-xs font-bold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
-            style={{ boxShadow: '2px 2px 0 var(--color-ink)' }}
+            className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-ink)]"
+            style={{
+              border: '2px solid var(--color-ink)',
+              borderRadius: '8px',
+              padding: '6px 14px',
+              background: 'var(--color-surface)',
+            }}
           >
             <LogOut size={13} />
             Sign out
@@ -89,32 +100,42 @@ export default function App() {
       <CatchBar onAdd={addLink} />
 
       {/* ── Filters + Search ── */}
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <TagFilter tags={allTags} activeTag={activeTag} onSelect={setActiveTag} />
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-56">
           <Search
-            size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink)]"
+            size={14}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink-faint)]"
           />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search your links"
-            className="w-full rounded-lg border border-[var(--color-ink)]/30 bg-[var(--color-surface)] py-2.5 pl-9 pr-3 text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-ink)] focus:outline-none"
+            className="w-full bg-transparent py-2 pl-8 pr-3 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+            }}
           />
         </div>
       </div>
 
       {/* ── Main content ── */}
-      <main className="mt-6 flex-1 overflow-y-auto pb-6">
+      <main className="mt-8 flex-1 overflow-y-auto pb-8">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 size={28} className="animate-spin text-[var(--color-ink)]" />
           </div>
         ) : error ? (
           <p
-            className="rounded-lg border-2 border-[var(--color-danger)] bg-[var(--color-danger-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-danger)]"
-            style={{ boxShadow: '3px 3px 0 var(--color-danger)' }}
+            className="text-sm font-semibold text-[var(--color-danger)]"
+            style={{
+              border: '3px solid var(--color-danger)',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              background: 'var(--color-danger-soft)',
+              boxShadow: '3px 3px 0 var(--color-danger)',
+            }}
           >
             {error}
           </p>

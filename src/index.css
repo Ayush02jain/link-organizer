@@ -3,22 +3,32 @@
 
 :root {
   /* ── Neubrutalist palette ── */
-  --color-paper: #f5f0e6;
+  --color-paper: #faf7f2;
   --color-surface: #ffffff;
   --color-ink: #1a1d1b;
   --color-ink-soft: #4a4e47;
-  --color-ink-faint: #7a7d74;
+  --color-ink-faint: #8a8d84;
   --color-border: #1a1d1b;
-  --color-border-width: 3px;
-  --color-accent: #ff6b35;
-  --color-accent-soft: #ffe0d0;
-  --color-accent-ink: #cc4400;
+  --color-accent: #22c55e;
+  --color-accent-dark: #16a34a;
   --color-danger: #ff2e2e;
   --color-danger-soft: #ffe0e0;
-  --color-tag-active: #ffd166;
-  --color-tag-active-ink: #6b4f00;
 
-  /* ── Saturated avatar palette ── */
+  /* ── Tag color palette ── */
+  --tag-green: #22c55e;
+  --tag-green-light: #dcfce7;
+  --tag-yellow: #facc15;
+  --tag-yellow-light: #fef9c3;
+  --tag-blue: #3b82f6;
+  --tag-blue-light: #dbeafe;
+  --tag-red: #ef4444;
+  --tag-red-light: #fee2e2;
+  --tag-purple: #a855f7;
+  --tag-purple-light: #f3e8ff;
+  --tag-orange: #f97316;
+  --tag-orange-light: #ffedd5;
+
+  /* ── Avatar palette ── */
   --avatar-coral: #ff6b6b;
   --avatar-blue: #4e8cff;
   --avatar-yellow: #ffd166;
@@ -31,16 +41,17 @@
   --font-body: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* ── Shadows (hard offset, zero blur) ── */
-  --shadow-sm: 3px 3px 0 var(--color-ink);
-  --shadow-md: 4px 4px 0 var(--color-ink);
+  /* ── Borders & Shadows ── */
+  --border-w: 3px;
+  --shadow: 4px 4px 0 var(--color-ink);
   --shadow-lg: 6px 6px 0 var(--color-ink);
-  --shadow-accent: 4px 4px 0 var(--color-accent);
+  --shadow-sm: 2px 2px 0 var(--color-ink);
 
-  /* ── Radius — less round than before ── */
+  /* ── Radius ── */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-pill: 999px;
 }
 
@@ -62,7 +73,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-tag-active);
+  background: var(--tag-yellow);
   color: var(--color-ink);
 }
 
@@ -80,8 +91,6 @@ body {
   }
 }
 
-/* ── Utility classes ── */
-
 .font-display {
   font-family: var(--font-display);
 }
@@ -90,130 +99,7 @@ body {
   font-family: var(--font-mono);
 }
 
-/* ── Neubrutalist component utilities ── */
-
-.neu-card {
-  border: var(--color-border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.neu-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.neu-input {
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  padding: 10px 14px;
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-ink);
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.neu-input::placeholder {
-  color: var(--color-ink-faint);
-}
-
-.neu-input:focus {
-  outline: none;
-  box-shadow: var(--shadow-sm);
-  border-color: var(--color-accent);
-}
-
-.neu-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 10px 20px;
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.neu-btn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: var(--shadow-md);
-}
-
-.neu-btn:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-
-.neu-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.neu-btn-primary {
-  background: var(--color-accent);
-  color: white;
-}
-
-.neu-btn-primary:hover:not(:disabled) {
-  background: var(--color-accent-ink);
-}
-
-.neu-btn-danger {
-  background: var(--color-danger);
-  color: white;
-}
-
-.neu-btn-ghost {
-  background: var(--color-surface);
-  color: var(--color-ink);
-  box-shadow: none;
-  border: 2px solid var(--color-border);
-}
-
-.neu-btn-ghost:hover:not(:disabled) {
-  box-shadow: var(--shadow-sm);
-}
-
-.neu-tag {
-  display: inline-flex;
-  align-items: center;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  padding: 3px 12px;
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--color-surface);
-  color: var(--color-ink);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.neu-tag:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 var(--color-ink);
-}
-
-.neu-tag-active {
-  background: var(--color-tag-active);
-  color: var(--color-tag-active-ink);
-}
-
-.neu-tag-accent {
-  background: var(--color-accent-soft);
-  color: var(--color-accent-ink);
-  border-color: var(--color-accent-ink);
-}
-
-/* ── Scrollbar (subtle neubrutalist) ── */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar {
   width: 10px;
 }

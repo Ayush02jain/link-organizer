@@ -31,18 +31,31 @@ export default function CatchBar({ onAdd }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="neu-card p-3 sm:flex sm:items-center sm:gap-2 sm:p-3"
+      className="sm:flex sm:items-center sm:gap-3"
+      style={{
+        border: '3px solid var(--color-ink)',
+        borderRadius: '16px',
+        background: 'var(--color-surface)',
+        padding: '10px 12px',
+        boxShadow: '4px 4px 0 var(--color-ink)',
+      }}
     >
       <input
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste a link to catch it…"
-        className="w-full flex-1 border-none bg-transparent px-3 py-2.5 font-display text-sm font-semibold text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+        placeholder="Paste a link to catch it..."
+        className="w-full flex-1 bg-transparent px-3 py-3 font-display text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
       />
-      <div className="mt-2 flex items-center gap-2 sm:mt-0">
-        <div className="flex flex-1 items-center gap-1.5 rounded-lg border-2 border-[var(--color-border)] px-3 py-2 sm:px-2 sm:py-1.5">
-          <TagIcon size={14} className="shrink-0 text-[var(--color-ink)]" />
+      <div className="mt-2 flex items-center gap-3 sm:mt-0">
+        <div
+          className="flex flex-1 items-center gap-1.5 px-3 py-2.5"
+          style={{
+            border: '2px solid var(--color-ink)',
+            borderRadius: '10px',
+          }}
+        >
+          <TagIcon size={14} className="shrink-0 text-[var(--color-ink-faint)]" />
           <input
             type="text"
             value={tagInput}
@@ -54,7 +67,27 @@ export default function CatchBar({ onAdd }) {
         <button
           type="submit"
           disabled={saving || !url.trim()}
-          className="neu-btn neu-btn-primary shrink-0 px-5 py-2.5 text-sm"
+          className="shrink-0 text-sm font-bold text-white disabled:opacity-50"
+          style={{
+            background: 'var(--color-accent)',
+            border: '2px solid var(--color-ink)',
+            borderRadius: '12px',
+            padding: '10px 24px',
+            boxShadow: '3px 3px 0 var(--color-ink)',
+            transition: 'transform 0.1s, box-shadow 0.1s',
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.transform = 'translate(2px, 2px)'
+            e.currentTarget.style.boxShadow = 'none'
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = ''
+            e.currentTarget.style.boxShadow = '3px 3px 0 var(--color-ink)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = ''
+            e.currentTarget.style.boxShadow = '3px 3px 0 var(--color-ink)'
+          }}
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
         </button>

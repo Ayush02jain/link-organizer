@@ -29,13 +29,10 @@ export default function Auth() {
       setStatus('error')
       setErrorMsg(error.message)
     } else if (data.session) {
-      // Email confirmation is disabled in Supabase — session created immediately
-      // App.jsx's auth listener will pick it up
       setEmail('')
       setPassword('')
       setStatus('idle')
     } else {
-      // Email confirmation is enabled — user must verify email first
       setStatus('email-confirm')
     }
   }
@@ -54,7 +51,6 @@ export default function Auth() {
       setStatus('error')
       setErrorMsg(error.message)
     } else {
-      // Success — App.jsx's auth listener will pick up the session
       setEmail('')
       setPassword('')
       setStatus('idle')
@@ -66,10 +62,16 @@ export default function Auth() {
       <div className="w-full max-w-sm">
         {/* ── Logo ── */}
         <div className="mb-10 text-center">
-          <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--color-ink)]">
-            <span
-              className="mr-2 inline-block h-8 w-8 rounded-md border-3 border-[var(--color-ink)]"
-              style={{ background: 'var(--color-accent)', boxShadow: '3px 3px 0 var(--color-ink)', verticalAlign: 'middle' }}
+          <h1 className="font-display text-4xl font-bold text-[var(--color-ink)] flex items-center justify-center gap-3">
+            <img
+              src="/favicon.svg"
+              alt="Catch logo"
+              className="h-11 w-11"
+              style={{
+                borderRadius: '10px',
+                border: '3px solid var(--color-ink)',
+                boxShadow: '3px 3px 0 var(--color-ink)',
+              }}
             />
             Catch
           </h1>
@@ -80,7 +82,13 @@ export default function Auth() {
 
         {status === 'email-confirm' ? (
           <div
-            className="neu-card p-6 text-center"
+            className="p-6 text-center"
+            style={{
+              border: '3px solid var(--color-ink)',
+              borderRadius: '16px',
+              background: 'var(--color-surface)',
+              boxShadow: '4px 4px 0 var(--color-ink)',
+            }}
           >
             <p className="font-display text-sm font-semibold text-[var(--color-ink)]">
               Check <span className="font-bold">{email}</span> to confirm your account.
@@ -94,7 +102,7 @@ export default function Auth() {
                 setEmail('')
                 setPassword('')
               }}
-              className="mt-4 font-display text-sm font-bold text-[var(--color-accent)] hover:underline"
+              className="mt-4 font-display text-sm font-bold text-[var(--color-accent-dark)] hover:underline"
             >
               Back to sign in
             </button>
@@ -110,7 +118,14 @@ export default function Auth() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="neu-input w-full"
+              className="w-full text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+              style={{
+                border: '3px solid var(--color-ink)',
+                borderRadius: '12px',
+                padding: '14px 16px',
+                background: 'var(--color-surface)',
+                boxShadow: '3px 3px 0 var(--color-ink)',
+              }}
             />
 
             <div className="relative">
@@ -121,12 +136,19 @@ export default function Auth() {
                 placeholder="Password (min 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="neu-input w-full pr-10"
+                className="w-full pr-10 text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none"
+                style={{
+                  border: '3px solid var(--color-ink)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  background: 'var(--color-surface)',
+                  boxShadow: '3px 3px 0 var(--color-ink)',
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-ink)] hover:text-[var(--color-accent-dark)]"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -135,7 +157,15 @@ export default function Auth() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="neu-btn neu-btn-primary w-full py-3 text-sm"
+              className="w-full text-sm font-bold text-white disabled:opacity-60"
+              style={{
+                background: 'var(--color-accent)',
+                border: '3px solid var(--color-ink)',
+                borderRadius: '12px',
+                padding: '14px',
+                boxShadow: '4px 4px 0 var(--color-ink)',
+                transition: 'transform 0.1s, box-shadow 0.1s',
+              }}
             >
               {status === 'loading'
                 ? mode === 'signup'
@@ -148,8 +178,14 @@ export default function Auth() {
 
             {status === 'error' && (
               <p
-                className="rounded-lg border-2 border-[var(--color-danger)] bg-[var(--color-danger-soft)] px-3 py-2 text-xs font-bold text-[var(--color-danger)]"
-                style={{ boxShadow: '2px 2px 0 var(--color-danger)' }}
+                className="text-xs font-bold text-[var(--color-danger)]"
+                style={{
+                  border: '2px solid var(--color-danger)',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  background: 'var(--color-danger-soft)',
+                  boxShadow: '2px 2px 0 var(--color-danger)',
+                }}
               >
                 {errorMsg}
               </p>
@@ -163,7 +199,7 @@ export default function Auth() {
                   setErrorMsg('')
                   setStatus('idle')
                 }}
-                className="font-display text-xs font-bold text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                className="font-display text-xs font-bold text-[var(--color-ink-faint)] hover:text-[var(--color-accent-dark)]"
               >
                 {mode === 'signin'
                   ? "New here? Create an account"
